@@ -7,6 +7,8 @@ import android.os.AsyncTask;
  */
 
 public class MyAsyncTaskExecutor {
+    //al momento de comprobar codigo, cambiar por la ip del servidor
+    public static final String  servidor = "http://10.2.200.192:3000/series";
 
     private static MyAsyncTaskExecutor instance;
 
@@ -27,7 +29,7 @@ public class MyAsyncTaskExecutor {
 
             @Override
             protected String doInBackground(Void... params) {
-                String resultado = new HttpServerConnection().connectToServer("http://www.mocky.io/v2/582f1759260000171165f0b6" + "?data=" + textToSend, 15000);
+                String resultado = new HttpServerConnection().connectToServer(servidor , textToSend, 15000);
                 return resultado;
             }
 

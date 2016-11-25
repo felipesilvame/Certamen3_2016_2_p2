@@ -1,6 +1,7 @@
 package cl.telematica.android.certamen3_p2;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -8,6 +9,7 @@ import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Created by franciscocabezas on 11/18/16.
@@ -15,11 +17,28 @@ import java.net.URL;
 
 public class HttpServerConnection {
 
-    public String connectToServer(String myUrl, int timeOut){
+    public String connectToServer(String myUrl, String showName, int timeOut){
         try {
             URL url = new URL(myUrl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setUseCaches( true );
+            conn.setInstanceFollowRedirects(false);
+            String urlParamameters = "";
+            urlParamameters += "{\"name\":\""+showName+ "\"}";
+            byte[] postData = urlParamameters.getBytes(StandardCharsets.UTF_8);
+            int postDataLength = postData.length;
+            conn.setDoOutput( true );
+            conn.setRequestMethod( "POST" );
+            conn.setRequestProperty( "Content-Type", "application/json");
+            conn.setRequestProperty( "charset", "utf-8");
+            conn.setRequestProperty( "Content-Length", Integer.toString( postDataLength ));
+            try( DataOutputStream wr = new DataOutputStream( conn.getOutputStream())) {
+                wr.write( postData );
+            }
+            int response = conn.getResponseCode();
+            conn.disconnect();
 
+            conn = (HttpURLConnection) url.openConnection();
             conn.setConnectTimeout(timeOut);
             conn.setRequestMethod("GET");
             conn.setDoInput(true);
@@ -28,6 +47,7 @@ public class HttpServerConnection {
 
             InputStream is = conn.getInputStream();
             return readIt(is);
+
         } catch (MalformedURLException e) {
             e.printStackTrace();
             return null;
